@@ -8,3 +8,8 @@ make
 
 ## Running
 ./ntp_client
+
+## License
+Copyright © 2015 Bryan Ivory
+
+Distributed under the BSD License.

@@ -5,7 +5,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define MSG_BUFFER_SZ 256
 
 /*
  * See http://www.ietf.org/rfc/rfc5905.txt
