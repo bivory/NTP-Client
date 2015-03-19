@@ -9,6 +9,7 @@
 
 /*
  * See http://www.ietf.org/rfc/rfc5905.txt
+ *     Section A.1.2.  Packet Data Structures
  * and https://www.meinbergglobal.com/english/info/ntp-packet.htm
  */
 typedef struct
@@ -19,6 +20,7 @@ typedef struct
 
 typedef struct
 {
+   uint32_t       header;
    uint32_t       root_delay;
    uint32_t       root_dispersion;
    uint32_t       reference_identifier;
@@ -30,13 +32,13 @@ typedef struct
    uint32_t       message_digest;
 } ntp_ntp_rsp_msg;
 
-void print_bytes(size_t num_bytes, uint8_t buffer[num_bytes])
+void print_words(size_t num_words, uint32_t buffer[num_words])
 {
-   size_t   byte_i;
+   size_t   word_i;
 
-   for(byte_i = 0; byte_i < num_bytes; byte_i++)
+   for(word_i = 0; word_i < num_words; word_i++)
    {
-      printf("%2lu: %#x\n", byte_i, buffer[byte_i]);
+      printf("%2lu: %#x\n", word_i, buffer[word_i]);
    }
 }
 
@@ -92,9 +94,8 @@ int main(void)
    }
 
    printf("Received %d bytes\n", receive_len);
-#if 0
-   print_bytes(receive_len, receive_buffer);
-#endif
+   print_words(receive_len/sizeof(uint32_t), (uint32_t *)&ntp_rsp_msg);
+
    seconds = ntohl(ntp_rsp_msg.transmit_timestamp.seconds);
    printf("Transmit seconds: %lu\n", seconds);
 
