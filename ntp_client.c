@@ -11,6 +11,12 @@
  *     Section A.1.2.  Packet Data Structures
  * and https://www.meinbergglobal.com/english/info/ntp-packet.htm
  */
+#define NTP_VERSION     3
+#define NTP_MODE_CLIENT 0x3
+
+#define NTP_HEADER_VERSION_SET(_header, _x) (_header |= ((_x & 0x7) << 0))
+#define NTP_HEADER_MODE_SET(_header, _x) (_header |= ((_x & 0x7) << 3))
+
 typedef struct
 {
    uint32_t seconds;
@@ -27,9 +33,7 @@ typedef struct
    ntp_timestamp  originate_timestamp;
    ntp_timestamp  receive_timestamp;
    ntp_timestamp  transmit_timestamp;
-   uint32_t       key_id;
-   uint32_t       message_digest;
-} ntp_ntp_rsp_msg;
+} ntp_rsp_msg;
 
 void print_words(size_t num_words, uint32_t buffer[num_words])
 {
@@ -48,9 +52,9 @@ int main(void)
    const char *         ntp_host = "66.228.59.187";
    int                  ntp_socket;
    struct sockaddr_in   server;
-   uint8_t              ntp_req_msg[48] = { 010, 0, 0, 0, 0, 0, 0, 0, 0 };
+   ntp_rsp_msg          ntp_req_msg;
    int                  receive_len;
-   ntp_ntp_rsp_msg      ntp_rsp_msg;
+   ntp_rsp_msg          ntp_rsp_msg;
    long                 seconds;
 
 
@@ -71,9 +75,12 @@ int main(void)
       return EXIT_FAILURE;
    }
 
+   memset(&ntp_req_msg, 0, sizeof(ntp_req_msg));
+   NTP_HEADER_VERSION_SET(ntp_req_msg.header, NTP_VERSION);
+   NTP_HEADER_MODE_SET(ntp_req_msg.header, NTP_MODE_CLIENT);
    printf("Sending NTP request to %s:%d\n", ntp_host, ntp_port);
    if (sendto(ntp_socket,
-              ntp_req_msg, sizeof(ntp_req_msg),
+              &ntp_req_msg, sizeof(ntp_req_msg),
               0,
               (struct sockaddr *) &server, sizeof(server)) == -1)
    {
